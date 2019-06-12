@@ -8,23 +8,23 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict'
+(function () {
+  'use strict'
 
-	var observer = new MutationObserver(function(mutationsList, observer) {
-        for (var mutation of mutationsList) {
-            if (mutation.type == 'childList') {
-				Array.prototype.slice.call(mutation.addedNodes).forEach(function (node) {
-					if (Node.ELEMENT_NODE === node.nodeType && 'assign-issue' == node.getAttribute('id')) {
-						jQuery(node.querySelector('.js-sd-internal-comment')).click()
-					}
-				})
-            }
-		}
-    })
+  var observer = new MutationObserver(function (mutationsList, observer) {
+    for (var mutation of mutationsList) {
+      if (mutation.type === 'childList') {
+        Array.prototype.slice.call(mutation.addedNodes).forEach(function (node) {
+          if (Node.ELEMENT_NODE === node.nodeType && node.getAttribute('id') === 'assign-issue') {
+            jQuery(node.querySelector('.js-sd-internal-comment')).click()
+          }
+        })
+      }
+    }
+  })
 
-    observer.observe(document.documentElement, {
-        childList: true,
-		subtree: true
-    })
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  })
 }())

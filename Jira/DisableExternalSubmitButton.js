@@ -8,17 +8,17 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict'
+(function () {
+  'use strict'
 
-    const css = `
+  const css = `
 .sd-external-submit {
   visibility: hidden !important;
 }
 `
 
-    const style = document.createElement('style')
-    style.type = 'text/css'
-    style.innerHTML = css
-    document.head.appendChild(style)
+  const style = document.createElement('style')
+  style.type = 'text/css'
+  style.innerHTML = css
+  document.head.appendChild(style)
 })()
