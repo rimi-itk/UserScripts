@@ -1,0 +1,21 @@
+/* Preflights are needed for default values of variables */
+.keyboardShortcuts {
+  h1,
+  h2 {
+    margin: 0;
+  }
+}
+
+.table {
+  td:first-child {
+    text-align: right;
+
+    kbd {
+      color: orange;
+    }
+
+    &:after {
+      content: ' : ';
+    }
+  }
+}

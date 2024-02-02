@@ -1,0 +1,8 @@
+node_modules
+*.log
+/.idea
+# @todo Use GitHub Actions to build and create a release
+#/dist
+/.nyc_output
+/coverage
+/types
