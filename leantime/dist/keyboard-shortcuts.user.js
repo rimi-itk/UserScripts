@@ -4,7 +4,8 @@
 // @description Leantime keyboard shortcuts
 // @match       https://*leantime.*/*
 // @match       http://leantime.local.itkdev.dk/*
-// @version     0.0.1
+// @exclude     https://leantime.io/
+// @version     0.0.2
 // @author      Mikkel Ricky
 // @license     MIT
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@2,npm/@violentmonkey/ui@0.7
@@ -462,36 +463,74 @@ const F = (a) => {
   v = a ?? new P(g);
 }, p = () => (v || F(), v), N = (...a) => p().bindKey(...a), G = (...a) => p().bindKeyCombo(...a); y.normalizeKeyCombo; y.stringifyKeyCombo; y.parseKeyCombo;
 
+const getProject = () => {
+  var _document$getElementB, _document$querySelect;
+  const url = ((_document$getElementB = document.getElementById('projectUrl')) == null ? void 0 : _document$getElementB.value) || ((_document$querySelect = document.querySelector('.projectLineItem.active a')) == null ? void 0 : _document$querySelect.href);
+  if (url) {
+    return {
+      url,
+      id: url.replace(/^.+\/([^/]+)$/, '$1')
+    };
+  }
+  return false;
+};
+const getToDo = () => {
+  var _document$querySelect2;
+  const url = (_document$querySelect2 = document.querySelector('#ticketdetails form')) == null ? void 0 : _document$querySelect2.action;
+  if (url) {
+    return {
+      url: location.href,
+      id: url.replace(/^.+\/([^/]+)$/, '$1')
+    };
+  }
+  return false;
+};
+
 var _tmpl$ = /*#__PURE__*/web.template(`<span>`),
   _tmpl$2 = /*#__PURE__*/web.template(`<span class=then>then`),
   _tmpl$3 = /*#__PURE__*/web.template(`<kbd>`),
   _tmpl$4 = /*#__PURE__*/web.template(`<div><h1>Keyboard shortcuts`),
   _tmpl$5 = /*#__PURE__*/web.template(`<section><h2></h2><table>`),
   _tmpl$6 = /*#__PURE__*/web.template(`<tr><td></td><td>`);
+let panelShown = false;
 const shortcuts = [{
   title: 'Global',
   shortcuts: [{
     keys: '?',
-    description: 'Open keyboard navigation help. You already knew that, right?!',
-    callable: () => panel.show()
-  }, {
-    keys: 'Escape',
-    description: 'Close this overlay',
+    description: 'Toggle keyboard navigation help overlay.',
     callable: () => {
-      panel.hide();
+      if (panelShown) {
+        panel.hide();
+      } else {
+        panel.show();
+      }
+      panelShown = !panelShown;
     }
-  }, {
+  },
+  // This conflicts with Leantime keyboard shortcut.
+  // {
+  //   keys: 'Escape',
+  //   description: 'Close this overlay',
+  //   callable: () => {
+  //     panel.hide();
+  //   },
+  // },
+
+  {
     keys: 'g, h',
     description: 'Go home',
-    path: '/'
+    path: '/',
+    toast: 'Going home …'
   }, {
     keys: 'g, p',
     description: 'Show projects',
-    path: '/projects/showMy'
+    path: '/projects/showMy',
+    toast: 'Going to projects …'
   }, {
     keys: 'g, c',
     description: 'Show calendar',
-    path: '/calendar/showMyCalendar'
+    path: '/calendar/showMyCalendar',
+    toast: 'Going to calendar …'
   }, {
     keys: 'g, m',
     description: 'Show profile',
@@ -506,16 +545,32 @@ const shortcuts = [{
     path: '/timesheets/showMyList'
   }]
 }, {
-  title: 'Project (@todo)',
+  title: 'Project',
   shortcuts: [{
     keys: 'c',
-    description: 'Create new to-do'
+    description: 'Create new To-Do in current project',
+    context: getProject,
+    callable: project => {
+      if (project) {
+        const url = new URL(location.href);
+        url.hash = '#/tickets/newTicket';
+        navigate(url.toString());
+      }
+    }
   }]
 }, {
-  title: 'To-do (@todo)',
+  title: 'To-do',
   shortcuts: [{
     keys: 't',
-    description: 'Track time on current to-do'
+    description: 'Track time on current To-Do',
+    context: getToDo,
+    callable: todo => {
+      if (todo.url) {
+        const url = new URL(todo.url);
+        url.searchParams.set('tab', 'timesheet');
+        navigate(url.toString());
+      }
+    }
   }]
 }];
 function Help() {
@@ -555,7 +610,6 @@ function Help() {
   })();
 }
 
-// Let's create a movable panel using @violentmonkey/ui
 // @see https://violentmonkey.github.io/vm-ui/functions/getPanel.html
 const panel = ui.getPanel({
   theme: 'dark',
@@ -566,22 +620,44 @@ Object.assign(panel.wrapper.style, {
   left: '10vw'
 });
 web.render(Help, panel.body);
+const inContext = (event, context) => {
+  // @see https://github.com/RobertWHurst/Keystrokes/issues/29#issuecomment-1802877351
+  const browserEvent = event.originalEvent;
+  const target = browserEvent == null ? void 0 : browserEvent.target;
+
+  // Never run if context is an editable control.
+  if (target && (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))) {
+    return false;
+  }
+  if ('function' === typeof context) {
+    return context(event);
+  }
+
+  // @todo (How) should we handle this case (where context is not a function)?
+  return true;
+};
 const allShortcuts = [].concat(...shortcuts.map(section => section.shortcuts));
-const navigate = path => {
-  if (window.location.pathname !== path) {
-    window.location.pathname = path;
+const navigate = destination => {
+  const url = new URL(destination, location.href).toString();
+  if (location.href !== url) {
+    location.href = url;
   }
 };
-
-// Build navigate shortcuts
-for (const shortcut of allShortcuts.filter(shortcut => shortcut.path)) {
-  (1 === shortcut.keys.length ? N : G)(shortcut.keys, () => navigate(shortcut.path));
-}
-
-// Build callback shortcuts
-for (const shortcut of allShortcuts.filter(shortcut => shortcut.callable)) {
-  (1 === shortcut.keys.length ? N : G)(shortcut.keys, () => {
-    shortcut.callable();
+for (const shortcut of allShortcuts) {
+  (1 === shortcut.keys.length ? N : G)(shortcut.keys, event => {
+    const context = inContext(event, shortcut.context);
+    if (context) {
+      if (shortcut.path) {
+        if (shortcut.toast) {
+          ui.showToast(shortcut.toast, {
+            theme: 'dark'
+          });
+        }
+        navigate(shortcut.path);
+      } else if (shortcut.callable && 'function' === typeof shortcut.callable) {
+        shortcut.callable(context, event);
+      }
+    }
   });
 }
 

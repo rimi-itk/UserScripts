@@ -17,7 +17,10 @@ export default defineConfig(Object.entries({
       },
       extensions: ['.ts', '.tsx', '.mjs', '.js', '.jsx'],
     }),
-    userscript((meta) => meta.replace('process.env.AUTHOR', pkg.author)),
+    userscript((meta) => meta
+               .replace('process.env.AUTHOR', pkg.author)
+               .replace('process.env.VERSION', pkg.version)
+              ),
   ],
   external: defineExternal([
     '@violentmonkey/ui',

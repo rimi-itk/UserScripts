@@ -1,9 +1,13 @@
 import { render } from 'solid-js/web';
-import { getPanel } from '@violentmonkey/ui';
+import { getPanel, showToast } from '@violentmonkey/ui';
 // global CSS
 import globalCss from './style.css';
 // CSS modules
 import styles, { stylesheet } from './style.module.css';
+import { bindKey, bindKeyCombo, BrowserKeyComboEvent } from '@rwh/keystrokes';
+import { getProject, getToDo } from './leantime';
+
+let panelShown = false;
 
 const shortcuts = [
   {
@@ -11,32 +15,43 @@ const shortcuts = [
     shortcuts: [
       {
         keys: '?',
-        description:
-          'Open keyboard navigation help. You already knew that, right?!',
-        callable: () => panel.show(),
-      },
-      {
-        keys: 'Escape',
-        description: 'Close this overlay',
+        description: 'Toggle keyboard navigation help overlay.',
         callable: () => {
-          panel.hide();
+          if (panelShown) {
+            panel.hide();
+          } else {
+            panel.show();
+          }
+          panelShown = !panelShown;
         },
       },
+
+      // This conflicts with Leantime keyboard shortcut.
+      // {
+      //   keys: 'Escape',
+      //   description: 'Close this overlay',
+      //   callable: () => {
+      //     panel.hide();
+      //   },
+      // },
 
       {
         keys: 'g, h',
         description: 'Go home',
         path: '/',
+        toast: 'Going home …',
       },
       {
         keys: 'g, p',
         description: 'Show projects',
         path: '/projects/showMy',
+        toast: 'Going to projects …',
       },
       {
         keys: 'g, c',
         description: 'Show calendar',
         path: '/calendar/showMyCalendar',
+        toast: 'Going to calendar …',
       },
       {
         keys: 'g, m',
@@ -57,21 +72,37 @@ const shortcuts = [
   },
 
   {
-    title: 'Project (@todo)',
+    title: 'Project',
     shortcuts: [
       {
         keys: 'c',
-        description: 'Create new to-do',
+        description: 'Create new To-Do in current project',
+        context: getProject,
+        callable: (project) => {
+          if (project) {
+            const url = new URL(location.href);
+            url.hash = '#/tickets/newTicket';
+            navigate(url.toString());
+          }
+        },
       },
     ],
   },
 
   {
-    title: 'To-do (@todo)',
+    title: 'To-do',
     shortcuts: [
       {
         keys: 't',
-        description: 'Track time on current to-do',
+        description: 'Track time on current To-Do',
+        context: getToDo,
+        callable: (todo) => {
+          if (todo.url) {
+            const url = new URL(todo.url);
+            url.searchParams.set('tab', 'timesheet');
+            navigate(url.toString());
+          }
+        },
       },
     ],
   },
@@ -118,7 +149,6 @@ function Help() {
   );
 }
 
-// Let's create a movable panel using @violentmonkey/ui
 // @see https://violentmonkey.github.io/vm-ui/functions/getPanel.html
 const panel = getPanel({
   theme: 'dark',
@@ -130,28 +160,59 @@ Object.assign(panel.wrapper.style, {
 });
 render(Help, panel.body);
 
-import { bindKey, bindKeyCombo } from '@rwh/keystrokes';
+const inContext = (event: BrowserKeyComboEvent, context) => {
+  // @see https://github.com/RobertWHurst/Keystrokes/issues/29#issuecomment-1802877351
+  const browserEvent = event.originalEvent;
+  const target = browserEvent?.target as HTMLElement;
+
+  // Never run if context is an editable control.
+  if (
+    target &&
+    (target.isContentEditable ||
+      ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))
+  ) {
+    return false;
+  }
+
+  if ('function' === typeof context) {
+    return context(event);
+  }
+
+  // @todo (How) should we handle this case (where context is not a function)?
+  return true;
+};
 
 const allShortcuts = [].concat(
   ...shortcuts.map((section) => section.shortcuts),
 );
 
-const navigate = (path) => {
-  if (window.location.pathname !== path) {
-    window.location.pathname = path;
+const navigate = (destination) => {
+  const url = new URL(destination, location.href).toString();
+  if (location.href !== url) {
+    location.href = url;
   }
 };
 
-// Build navigate shortcuts
-for (const shortcut of allShortcuts.filter((shortcut) => shortcut.path)) {
-  (1 === shortcut.keys.length ? bindKey : bindKeyCombo)(shortcut.keys, () =>
-    navigate(shortcut.path),
+for (const shortcut of allShortcuts) {
+  (1 === shortcut.keys.length ? bindKey : bindKeyCombo)(
+    shortcut.keys,
+    (event) => {
+      const context = inContext(event, shortcut.context);
+      if (context) {
+        if (shortcut.path) {
+          if (shortcut.toast) {
+            showToast(shortcut.toast, {
+              theme: 'dark',
+            });
+          }
+          navigate(shortcut.path);
+        } else if (
+          shortcut.callable &&
+          'function' === typeof shortcut.callable
+        ) {
+          shortcut.callable(context, event);
+        }
+      }
+    },
   );
-}
-
-// Build callback shortcuts
-for (const shortcut of allShortcuts.filter((shortcut) => shortcut.callable)) {
-  (1 === shortcut.keys.length ? bindKey : bindKeyCombo)(shortcut.keys, () => {
-    shortcut.callable();
-  });
 }

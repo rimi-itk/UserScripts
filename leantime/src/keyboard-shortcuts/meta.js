@@ -4,8 +4,9 @@
 // @description Leantime keyboard shortcuts
 // @match       https://*leantime.*/*
 // @match       http://leantime.local.itkdev.dk/*
+// @exclude     https://leantime.io/
 // @grant       GM_addStyle
-// @version     0.0.1
+// @version     process.env.VERSION
 // @author      process.env.AUTHOR
 // @license     MIT
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@2,npm/@violentmonkey/ui@0.7

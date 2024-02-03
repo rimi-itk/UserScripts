@@ -1,6 +1,6 @@
 {
   "name": "leantime-keyboard-shortcuts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "author": "Mikkel Ricky",
   "license": "MIT",
@@ -16,7 +16,14 @@
     "lint:fix": "eslint --ext .ts,.tsx --fix . && prettier --ignore-path .eslintignore --write .",
     "ci": "run-s lint",
     "build:js": "rollup -c",
-    "build": "cross-env NODE_ENV=production run-s ci clean build:js"
+    "build": "cross-env NODE_ENV=production run-s ci clean build:js",
+
+    "coding-standards-check/js": "npm run lint",
+    "coding-standards-check/markdownlint": "markdownlint --ignore 'node_modules' --ignore 'vendor' '*.md' 'docs/**/*.md'",
+    "coding-standards-check": "npm run coding-standards-check/js; npm run coding-standards-check/markdownlint",
+    "coding-standards-apply/js": "npm run lint:fix",
+    "coding-standards-apply/markdownlint": "markdownlint --fix '*.md' 'docs/**/*.md'",
+    "coding-standards-apply": "npm run coding-standards-apply/js; npm run coding-standards-apply/markdownlint"
   },
   "dependencies": {
     "@babel/runtime": "^7.23.7",
@@ -38,6 +45,7 @@
     "eslint-config-prettier": "^9.1.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
+    "markdownlint-cli": "^0.39.0",
     "prettier": "^3.1.1",
     "rollup-plugin-userscript": "^0.3.0",
     "unocss": "^0.58.3"
