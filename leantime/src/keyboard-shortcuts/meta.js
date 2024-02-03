@@ -5,7 +5,7 @@
 // @match       https://*leantime.*/*
 // @match       http://leantime.local.itkdev.dk/*
 // @grant       GM_addStyle
-// @version     0.0.0
+// @version     0.0.1
 // @author      process.env.AUTHOR
 // @license     MIT
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@2,npm/@violentmonkey/ui@0.7
