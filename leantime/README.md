@@ -6,8 +6,9 @@ This is a userscript initiated from
 ## Installation
 
 1. Install [the Violentmonkey extension](https://violentmonkey.github.io/#installation) in your browser.
-2. Open <https://raw.githubusercontent.com/rimi-itk/UserScripts/main/leantime/dist/keyboard-shortcuts.user.js>
-3. Install the script by clicking
+2. Open <https://raw.githubusercontent.com/rimi-itk/UserScripts/main/leantime/dist/keyboard-shortcuts.user.js>.
+3. Install the script by clicking "Install" (or press <kbd>⌘-Enter</kbd> ).
+4. Press <kbd>?</kbd> and enjoy the "Keyboard shortcuts" overlay.
 
 ## Development
 

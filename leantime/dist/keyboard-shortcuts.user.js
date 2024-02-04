@@ -5,7 +5,7 @@
 // @match       https://*leantime.*/*
 // @match       http://leantime.local.itkdev.dk/*
 // @exclude     https://leantime.io/
-// @version     0.0.2
+// @version     0.0.3
 // @author      Mikkel Ricky
 // @license     MIT
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@2,npm/@violentmonkey/ui@0.7
@@ -486,18 +486,29 @@ const getToDo = () => {
   return false;
 };
 
+const translations = {
+  'da-dk': {}
+};
+
+// @todo Use https://www.i18next.com/ for this.
+const translate = text => {
+  var _document$documentEle, _translations$lang$te, _translations$lang;
+  const lang = (_document$documentEle = document.documentElement.lang) != null ? _document$documentEle : 'en-US';
+  return (_translations$lang$te = (_translations$lang = translations[lang]) == null ? void 0 : _translations$lang[text]) != null ? _translations$lang$te : text;
+};
+
 var _tmpl$ = /*#__PURE__*/web.template(`<span>`),
-  _tmpl$2 = /*#__PURE__*/web.template(`<span class=then>then`),
+  _tmpl$2 = /*#__PURE__*/web.template(`<span class=then>`),
   _tmpl$3 = /*#__PURE__*/web.template(`<kbd>`),
-  _tmpl$4 = /*#__PURE__*/web.template(`<div><h1>Keyboard shortcuts`),
+  _tmpl$4 = /*#__PURE__*/web.template(`<div><h1>`),
   _tmpl$5 = /*#__PURE__*/web.template(`<section><h2></h2><table>`),
   _tmpl$6 = /*#__PURE__*/web.template(`<tr><td></td><td>`);
 let panelShown = false;
 const shortcuts = [{
-  title: 'Global',
+  title: translate('Global'),
   shortcuts: [{
     keys: '?',
-    description: 'Toggle keyboard navigation help overlay.',
+    description: translate('Toggle keyboard navigation help overlay.'),
     callable: () => {
       if (panelShown) {
         panel.hide();
@@ -510,7 +521,7 @@ const shortcuts = [{
   // This conflicts with Leantime keyboard shortcut.
   // {
   //   keys: 'Escape',
-  //   description: 'Close this overlay',
+  //   description: t('Close this overlay'),
   //   callable: () => {
   //     panel.hide();
   //   },
@@ -518,37 +529,36 @@ const shortcuts = [{
 
   {
     keys: 'g, h',
-    description: 'Go home',
     path: '/',
-    toast: 'Going home …'
+    description: translate('Go home'),
+    toast: translate('Going home …')
   }, {
     keys: 'g, p',
-    description: 'Show projects',
     path: '/projects/showMy',
-    toast: 'Going to projects …'
+    description: translate('Show projects'),
+    toast: translate('Going to projects …')
   }, {
     keys: 'g, c',
-    description: 'Show calendar',
     path: '/calendar/showMyCalendar',
-    toast: 'Going to calendar …'
+    description: translate('Show calendar'),
+    toast: translate('Going to calendar …')
   }, {
     keys: 'g, m',
-    description: 'Show profile',
-    path: '/users/editOwn/'
+    path: '/users/editOwn/',
+    description: translate('Show profile')
   }, {
     keys: 'g, t, w',
-    description: 'Show week timesheets',
-    path: '/timesheets/showMy'
+    path: '/timesheets/showMy',
+    description: translate('Show week timesheets')
   }, {
     keys: 'g, t, l',
-    description: 'Show list timesheets',
-    path: '/timesheets/showMyList'
+    path: '/timesheets/showMyList',
+    description: translate('Show list timesheets')
   }]
 }, {
-  title: 'Project',
+  title: translate('Project'),
   shortcuts: [{
     keys: 'c',
-    description: 'Create new To-Do in current project',
     context: getProject,
     callable: project => {
       if (project) {
@@ -556,13 +566,13 @@ const shortcuts = [{
         url.hash = '#/tickets/newTicket';
         navigate(url.toString());
       }
-    }
+    },
+    description: translate('Create new To-Do in current project')
   }]
 }, {
-  title: 'To-do',
+  title: translate('To-do'),
   shortcuts: [{
     keys: 't',
-    description: 'Track time on current To-Do',
     context: getToDo,
     callable: todo => {
       if (todo.url) {
@@ -570,7 +580,8 @@ const shortcuts = [{
         url.searchParams.set('tab', 'timesheet');
         navigate(url.toString());
       }
-    }
+    },
+    description: translate('Track time on current To-Do')
   }]
 }];
 function Help() {
@@ -578,7 +589,11 @@ function Help() {
     const items = keys.split(/\s*(,)\s*/g);
     return (() => {
       var _el$ = _tmpl$();
-      web.insert(_el$, () => items.map(key => ',' === key ? [' ', _tmpl$2(), ' '] : (() => {
+      web.insert(_el$, () => items.map(key => ',' === key ? [' ', (() => {
+        var _el$2 = _tmpl$2();
+        web.insert(_el$2, () => translate('then'));
+        return _el$2;
+      })(), ' '] : (() => {
         var _el$3 = _tmpl$3();
         web.insert(_el$3, key);
         return _el$3;
@@ -587,8 +602,9 @@ function Help() {
     })();
   };
   return (() => {
-    var _el$4 = _tmpl$4();
-      _el$4.firstChild;
+    var _el$4 = _tmpl$4(),
+      _el$5 = _el$4.firstChild;
+    web.insert(_el$5, () => translate('Keyboard shortcuts'));
     web.insert(_el$4, () => shortcuts.map(section => (() => {
       var _el$6 = _tmpl$5(),
         _el$7 = _el$6.firstChild,

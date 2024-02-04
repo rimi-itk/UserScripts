@@ -5,17 +5,18 @@ import globalCss from './style.css';
 // CSS modules
 import styles, { stylesheet } from './style.module.css';
 import { bindKey, bindKeyCombo, BrowserKeyComboEvent } from '@rwh/keystrokes';
-import { getProject, getToDo } from './leantime';
+import { getProject, getToDo } from './lib/leantime';
+import { translate as t } from './lib/translation';
 
 let panelShown = false;
 
 const shortcuts = [
   {
-    title: 'Global',
+    title: t('Global'),
     shortcuts: [
       {
         keys: '?',
-        description: 'Toggle keyboard navigation help overlay.',
+        description: t('Toggle keyboard navigation help overlay.'),
         callable: () => {
           if (panelShown) {
             panel.hide();
@@ -29,7 +30,7 @@ const shortcuts = [
       // This conflicts with Leantime keyboard shortcut.
       // {
       //   keys: 'Escape',
-      //   description: 'Close this overlay',
+      //   description: t('Close this overlay'),
       //   callable: () => {
       //     panel.hide();
       //   },
@@ -37,46 +38,45 @@ const shortcuts = [
 
       {
         keys: 'g, h',
-        description: 'Go home',
         path: '/',
-        toast: 'Going home …',
+        description: t('Go home'),
+        toast: t('Going home …'),
       },
       {
         keys: 'g, p',
-        description: 'Show projects',
         path: '/projects/showMy',
-        toast: 'Going to projects …',
+        description: t('Show projects'),
+        toast: t('Going to projects …'),
       },
       {
         keys: 'g, c',
-        description: 'Show calendar',
         path: '/calendar/showMyCalendar',
-        toast: 'Going to calendar …',
+        description: t('Show calendar'),
+        toast: t('Going to calendar …'),
       },
       {
         keys: 'g, m',
-        description: 'Show profile',
         path: '/users/editOwn/',
+        description: t('Show profile'),
       },
       {
         keys: 'g, t, w',
-        description: 'Show week timesheets',
         path: '/timesheets/showMy',
+        description: t('Show week timesheets'),
       },
       {
         keys: 'g, t, l',
-        description: 'Show list timesheets',
         path: '/timesheets/showMyList',
+        description: t('Show list timesheets'),
       },
     ],
   },
 
   {
-    title: 'Project',
+    title: t('Project'),
     shortcuts: [
       {
         keys: 'c',
-        description: 'Create new To-Do in current project',
         context: getProject,
         callable: (project) => {
           if (project) {
@@ -85,16 +85,16 @@ const shortcuts = [
             navigate(url.toString());
           }
         },
+        description: t('Create new To-Do in current project'),
       },
     ],
   },
 
   {
-    title: 'To-do',
+    title: t('To-do'),
     shortcuts: [
       {
         keys: 't',
-        description: 'Track time on current To-Do',
         context: getToDo,
         callable: (todo) => {
           if (todo.url) {
@@ -103,6 +103,7 @@ const shortcuts = [
             navigate(url.toString());
           }
         },
+        description: t('Track time on current To-Do'),
       },
     ],
   },
@@ -117,7 +118,7 @@ function Help() {
           ',' === key ? (
             <>
               {' '}
-              <span class="then">then</span>{' '}
+              <span class="then">{t('then')}</span>{' '}
             </>
           ) : (
             <kbd>{key}</kbd>
@@ -129,7 +130,7 @@ function Help() {
 
   return (
     <div class={styles.keyboardShortcuts}>
-      <h1>Keyboard shortcuts</h1>
+      <h1>{t('Keyboard shortcuts')}</h1>
 
       {shortcuts.map((section) => (
         <section>
