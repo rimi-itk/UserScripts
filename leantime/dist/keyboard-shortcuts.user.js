@@ -5,7 +5,7 @@
 // @match       https://*leantime.*/*
 // @match       http://leantime.local.itkdev.dk/*
 // @exclude     https://leantime.io/
-// @version     0.0.3
+// @version     0.1.0
 // @author      Mikkel Ricky
 // @license     MIT
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@2,npm/@violentmonkey/ui@0.7
@@ -545,15 +545,18 @@ const shortcuts = [{
   }, {
     keys: 'g, m',
     path: '/users/editOwn/',
-    description: translate('Show profile')
+    description: translate('Show profile'),
+    toast: translate('Going to profile …')
   }, {
     keys: 'g, t, w',
     path: '/timesheets/showMy',
-    description: translate('Show week timesheets')
+    description: translate('Show week timesheets'),
+    toast: translate('Going to week timesheets …')
   }, {
     keys: 'g, t, l',
     path: '/timesheets/showMyList',
-    description: translate('Show list timesheets')
+    description: translate('Show list timesheets'),
+    toast: translate('Going to list timesheets …')
   }]
 }, {
   title: translate('Project'),
@@ -637,9 +640,10 @@ Object.assign(panel.wrapper.style, {
 });
 web.render(Help, panel.body);
 const inContext = (event, context) => {
+  var _browserEvent$target;
   // @see https://github.com/RobertWHurst/Keystrokes/issues/29#issuecomment-1802877351
-  const browserEvent = event.originalEvent;
-  const target = browserEvent == null ? void 0 : browserEvent.target;
+  const browserEvent = event.finalKeyEvent.originalEvent;
+  const target = (_browserEvent$target = browserEvent.target) != null ? _browserEvent$target : browserEvent.srcElement;
 
   // Never run if context is an editable control.
   if (target && (target.isContentEditable || ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName))) {

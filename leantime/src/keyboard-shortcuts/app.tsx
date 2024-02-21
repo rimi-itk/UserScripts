@@ -58,16 +58,19 @@ const shortcuts = [
         keys: 'g, m',
         path: '/users/editOwn/',
         description: t('Show profile'),
+        toast: t('Going to profile …'),
       },
       {
         keys: 'g, t, w',
         path: '/timesheets/showMy',
         description: t('Show week timesheets'),
+        toast: t('Going to week timesheets …'),
       },
       {
         keys: 'g, t, l',
         path: '/timesheets/showMyList',
         description: t('Show list timesheets'),
+        toast: t('Going to list timesheets …'),
       },
     ],
   },
@@ -163,8 +166,9 @@ render(Help, panel.body);
 
 const inContext = (event: BrowserKeyComboEvent, context) => {
   // @see https://github.com/RobertWHurst/Keystrokes/issues/29#issuecomment-1802877351
-  const browserEvent = event.originalEvent;
-  const target = browserEvent?.target as HTMLElement;
+  const browserEvent = event.finalKeyEvent.originalEvent;
+  const target = (browserEvent.target ??
+    browserEvent.srcElement) as HTMLElement;
 
   // Never run if context is an editable control.
   if (
