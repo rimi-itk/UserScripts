@@ -5,7 +5,7 @@
 // @match       https://*leantime.*/*
 // @match       http://leantime.local.itkdev.dk/*
 // @exclude     https://leantime.io/
-// @version     0.1.0
+// @version     0.1.1
 // @author      Mikkel Ricky
 // @license     MIT
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@2,npm/@violentmonkey/ui@0.7
@@ -640,9 +640,9 @@ Object.assign(panel.wrapper.style, {
 });
 web.render(Help, panel.body);
 const inContext = (event, context) => {
-  var _browserEvent$target;
+  var _event$finalKeyEvent$, _event$finalKeyEvent, _browserEvent$target;
   // @see https://github.com/RobertWHurst/Keystrokes/issues/29#issuecomment-1802877351
-  const browserEvent = event.finalKeyEvent.originalEvent;
+  const browserEvent = (_event$finalKeyEvent$ = (_event$finalKeyEvent = event.finalKeyEvent) == null ? void 0 : _event$finalKeyEvent.originalEvent) != null ? _event$finalKeyEvent$ : event.originalEvent;
   const target = (_browserEvent$target = browserEvent.target) != null ? _browserEvent$target : browserEvent.srcElement;
 
   // Never run if context is an editable control.

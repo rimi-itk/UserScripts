@@ -4,7 +4,12 @@ import { getPanel, showToast } from '@violentmonkey/ui';
 import globalCss from './style.css';
 // CSS modules
 import styles, { stylesheet } from './style.module.css';
-import { bindKey, bindKeyCombo, BrowserKeyComboEvent } from '@rwh/keystrokes';
+import {
+  bindKey,
+  bindKeyCombo,
+  BrowserKeyEvent,
+  BrowserKeyComboEvent,
+} from '@rwh/keystrokes';
 import { getProject, getToDo } from './lib/leantime';
 import { translate as t } from './lib/translation';
 
@@ -164,9 +169,10 @@ Object.assign(panel.wrapper.style, {
 });
 render(Help, panel.body);
 
-const inContext = (event: BrowserKeyComboEvent, context) => {
+const inContext = (event: BrowserKeyEvent | BrowserKeyComboEvent, context) => {
   // @see https://github.com/RobertWHurst/Keystrokes/issues/29#issuecomment-1802877351
-  const browserEvent = event.finalKeyEvent.originalEvent;
+  const browserEvent =
+    event.finalKeyEvent?.originalEvent ?? event.originalEvent;
   const target = (browserEvent.target ??
     browserEvent.srcElement) as HTMLElement;
 
